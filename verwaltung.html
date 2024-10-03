@@ -35,6 +35,84 @@
             padding: 5px;
         }
     </style>
+    <!-- Firebase SDK einbinden -->
+    <script type="module">
+        // Importiere benötigte Funktionen von Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+        // Firebase-Konfiguration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC755F3iMmyWt3y8BQaEaf6XCDxJD1oIM0",
+            authDomain: "drita-156ac.firebaseapp.com",
+            databaseURL: "https://drita-156ac-default-rtdb.firebaseio.com",
+            projectId: "drita-156ac",
+            storageBucket: "drita-156ac.appspot.com",
+            messagingSenderId: "1087047503092",
+            appId: "1:1087047503092:web:e5ca7e121f4614747162a1"
+        };
+
+        // Firebase initialisieren
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Funktion, um die Galerie anzuzeigen
+        function displayGallery() {
+            const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = '';  // Galerie leeren
+
+            // Lade die Bild-URLs aus der Firebase-Datenbank
+            const imagesRef = ref(database, 'galleryImages');
+            onValue(imagesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, imageUrl]) => {
+                        const galleryItem = document.createElement('div');
+                        galleryItem.className = 'gallery-item';
+
+                        const imgElement = document.createElement('img');
+                        imgElement.src = imageUrl;  // Verwende die gespeicherte Bild-URL
+                        imgElement.alt = 'Bild';
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerHTML = 'X';
+                        deleteBtn.onclick = function () {
+                            deleteImage(key);
+                        };
+
+                        galleryItem.appendChild(imgElement);
+                        galleryItem.appendChild(deleteBtn);
+                        galleryElement.appendChild(galleryItem);
+                    });
+                }
+            });
+        }
+
+        // Funktion, um ein neues Bild hinzuzufügen
+        function addImage() {
+            const imageUrl = document.getElementById('imageUrl').value;
+            if (imageUrl) {
+                const newImageRef = push(ref(database, 'galleryImages'));
+                set(newImageRef, imageUrl).then(() => {
+                    displayGallery();  // Galerie neu anzeigen
+                    document.getElementById('imageUrl').value = '';  // Eingabefeld leeren
+                });
+            } else {
+                alert('Bitte eine gültige Bild-URL eingeben.');
+            }
+        }
+
+        // Funktion, um ein Bild zu löschen
+        function deleteImage(key) {
+            set(ref(database, `galleryImages/${key}`), null).then(() => {
+                displayGallery();  // Galerie neu anzeigen
+            });
+        }
+
+        // Galerie beim Laden der Seite anzeigen
+        window.onload = displayGallery;
+    </script>
 </head>
 <body>
 
@@ -47,60 +125,6 @@
     <!-- Bild-URL von Dropbox oder einem anderen Dienst einfügen -->
     <input type="text" id="imageUrl" placeholder="Dropbox-Bild-URL">
     <button onclick="addImage()">Bild hinzufügen</button>
-
-    <script>
-        // Funktion, um die Galerie anzuzeigen
-        function displayGallery() {
-            const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-            const galleryElement = document.getElementById('gallery');
-            galleryElement.innerHTML = '';  // Galerie leeren
-
-            storedImages.forEach((imageUrl, index) => {
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-
-                const imgElement = document.createElement('img');
-                imgElement.src = imageUrl;  // Verwende die gespeicherte Dropbox-URL
-                imgElement.alt = 'Bild';
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = 'X';
-                deleteBtn.onclick = function() {
-                    deleteImage(index);
-                };
-
-                galleryItem.appendChild(imgElement);
-                galleryItem.appendChild(deleteBtn);
-                galleryElement.appendChild(galleryItem);
-            });
-        }
-
-        // Funktion, um ein neues Bild hinzuzufügen
-        function addImage() {
-            const imageUrl = document.getElementById('imageUrl').value;
-            if (imageUrl) {
-                const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-                storedImages.push(imageUrl);  // Bild-URL im Local Storage speichern
-                localStorage.setItem('galleryImages', JSON.stringify(storedImages));
-                displayGallery();  // Galerie neu anzeigen
-                document.getElementById('imageUrl').value = '';  // Eingabefeld leeren
-            } else {
-                alert('Bitte eine gültige Bild-URL eingeben.');
-            }
-        }
-
-        // Funktion, um ein Bild zu löschen
-        function deleteImage(index) {
-            const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-            storedImages.splice(index, 1);  // Bild aus der Liste entfernen
-            localStorage.setItem('galleryImages', JSON.stringify(storedImages));
-            displayGallery();  // Galerie neu anzeigen
-        }
-
-        // Galerie beim Laden der Seite anzeigen
-        window.onload = displayGallery;
-    </script>
 
 </body>
 </html>
