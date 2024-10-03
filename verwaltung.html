@@ -40,6 +40,7 @@
         // Importiere benötigte Funktionen von Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
@@ -55,6 +56,7 @@
         // Firebase initialisieren
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        const storage = getStorage(app);
 
         // Funktion, um die Galerie anzuzeigen
         function displayGallery() {
@@ -89,18 +91,18 @@
             });
         }
 
-        // Funktion, um ein neues Bild hinzuzufügen
-        function addImage() {
-            const imageUrl = document.getElementById('imageUrl').value;
-            if (imageUrl) {
-                const newImageRef = push(ref(database, 'galleryImages'));
-                set(newImageRef, imageUrl).then(() => {
-                    displayGallery();  // Galerie neu anzeigen
-                    document.getElementById('imageUrl').value = '';  // Eingabefeld leeren
+        // Funktion, um ein neues Bild hochzuladen und hinzuzufügen
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            const storageReference = storageRef(storage, 'images/' + file.name);
+            uploadBytes(storageReference, file).then((snapshot) => {
+                getDownloadURL(snapshot.ref).then((url) => {
+                    const newImageRef = push(ref(database, 'galleryImages'));
+                    set(newImageRef, url).then(() => {
+                        displayGallery();  // Galerie neu anzeigen
+                    });
                 });
-            } else {
-                alert('Bitte eine gültige Bild-URL eingeben.');
-            }
+            });
         }
 
         // Funktion, um ein Bild zu löschen
@@ -122,9 +124,8 @@
 
     <br>
 
-    <!-- Bild-URL von Dropbox oder einem anderen Dienst einfügen -->
-    <input type="text" id="imageUrl" placeholder="Dropbox-Bild-URL">
-    <button onclick="addImage()">Bild hinzufügen</button>
-
+    <!-- Bild von Gerät hochladen -->
+    <input type="file" id="imageUpload" accept="image/*" onchange="uploadImage(event)">
+    
 </body>
 </html>
