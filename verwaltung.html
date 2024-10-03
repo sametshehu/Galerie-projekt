@@ -44,24 +44,23 @@
 
     <br>
 
-    <!-- Bild hinzufügen -->
+    <!-- Bild-URL von Dropbox oder einem anderen Dienst einfügen -->
     <input type="text" id="imageUrl" placeholder="Dropbox-Bild-URL">
     <button onclick="addImage()">Bild hinzufügen</button>
 
     <script>
         // Funktion, um die Galerie anzuzeigen
         function displayGallery() {
-            const galleryElement = document.getElementById('gallery');
-            galleryElement.innerHTML = ''; // Galerie leeren
-
             const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+            const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = '';  // Galerie leeren
 
             storedImages.forEach((imageUrl, index) => {
                 const galleryItem = document.createElement('div');
                 galleryItem.className = 'gallery-item';
 
                 const imgElement = document.createElement('img');
-                imgElement.src = imageUrl;
+                imgElement.src = imageUrl;  // Verwende die gespeicherte Dropbox-URL
                 imgElement.alt = 'Bild';
 
                 const deleteBtn = document.createElement('button');
@@ -82,10 +81,10 @@
             const imageUrl = document.getElementById('imageUrl').value;
             if (imageUrl) {
                 const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-                storedImages.push(imageUrl);  // Speichern des externen Dropbox-Links
+                storedImages.push(imageUrl);  // Bild-URL im Local Storage speichern
                 localStorage.setItem('galleryImages', JSON.stringify(storedImages));
-                displayGallery(); // Galerie neu anzeigen
-                document.getElementById('imageUrl').value = ''; // Eingabefeld leeren
+                displayGallery();  // Galerie neu anzeigen
+                document.getElementById('imageUrl').value = '';  // Eingabefeld leeren
             } else {
                 alert('Bitte eine gültige Bild-URL eingeben.');
             }
@@ -94,9 +93,9 @@
         // Funktion, um ein Bild zu löschen
         function deleteImage(index) {
             const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-            storedImages.splice(index, 1); // Bild aus der Liste entfernen
+            storedImages.splice(index, 1);  // Bild aus der Liste entfernen
             localStorage.setItem('galleryImages', JSON.stringify(storedImages));
-            displayGallery(); // Galerie neu anzeigen
+            displayGallery();  // Galerie neu anzeigen
         }
 
         // Galerie beim Laden der Seite anzeigen
