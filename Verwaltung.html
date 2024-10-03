@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie verwalten</title>
+    <style>
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-item {
+            position: relative;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Galerie verwalten</h1>
+
+    <div class="gallery" id="gallery"></div>
+
+    <br>
+
+    <!-- Bild hinzufügen -->
+    <input type="text" id="imageUrl" placeholder="URL des neuen Bildes">
+    <button onclick="addImage()">Bild hinzufügen</button>
+
+    <script>
+        // Funktion, um die Galerie anzuzeigen
+        function displayGallery() {
+            const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = ''; // Galerie leeren
+
+            const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+
+            storedImages.forEach((imageUrl, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+
+                const imgElement = document.createElement('img');
+                imgElement.src = imageUrl;
+                imgElement.alt = 'Bild';
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = 'X';
+                deleteBtn.onclick = function() {
+                    deleteImage(index);
+                };
+
+                galleryItem.appendChild(imgElement);
+                galleryItem.appendChild(deleteBtn);
+                galleryElement.appendChild(galleryItem);
+            });
+        }
+
+        // Funktion, um ein neues Bild hinzuzufügen
+        function addImage() {
+            const imageUrl = document.getElementById('imageUrl').value;
+            if (imageUrl) {
+                const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+                storedImages.push(imageUrl);
+                localStorage.setItem('galleryImages', JSON.stringify(storedImages));
+                displayGallery(); // Galerie neu anzeigen
+                document.getElementById('imageUrl').value = ''; // Eingabefeld leeren
+            } else {
+                alert('Bitte eine gültige Bild-URL eingeben.');
+            }
+        }
+
+        // Funktion, um ein Bild zu löschen
+        function deleteImage(index) {
+            const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+            storedImages.splice(index, 1); // Bild aus der Liste entfernen
+            localStorage.setItem('galleryImages', JSON.stringify(storedImages));
+            displayGallery(); // Galerie neu anzeigen
+        }
+
+        // Galerie beim Laden der Seite anzeigen
+        window.onload = displayGallery;
+    </script>
+
+</body>
+</html>
