@@ -29,14 +29,13 @@
     <script>
         // Funktion, um die Galerie anzuzeigen
         function displayGallery() {
-            const galleryElement = document.getElementById('gallery');
-            galleryElement.innerHTML = ''; // Galerie leeren
-
             const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+            const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = '';  // Galerie leeren
 
             storedImages.forEach((imageUrl) => {
                 const imgElement = document.createElement('img');
-                imgElement.src = imageUrl;
+                imgElement.src = imageUrl;  // Verwende die gespeicherte Dropbox-URL
                 imgElement.alt = 'Bild';
                 galleryElement.appendChild(imgElement);
             });
@@ -49,7 +48,7 @@
             }
         });
 
-        // Initiale Anzeige der Galerie beim Laden der Seite
+        // Galerie beim Laden der Seite anzeigen
         window.onload = displayGallery;
     </script>
 
