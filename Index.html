@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie</title>
+    <style>
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Galerie anzeigen</h1>
+
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        // Funktion, um die Galerie anzuzeigen
+        function displayGallery() {
+            const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = ''; // Galerie leeren
+
+            const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+
+            storedImages.forEach((imageUrl) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = imageUrl;
+                imgElement.alt = 'Bild';
+                galleryElement.appendChild(imgElement);
+            });
+        }
+
+        // Event-Listener für den 'storage'-Event, um die Galerie in Echtzeit zu aktualisieren
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'galleryImages') {
+                displayGallery();
+            }
+        });
+
+        // Initiale Anzeige der Galerie beim Laden der Seite
+        window.onload = displayGallery;
+    </script>
+
+</body>
+</html>
