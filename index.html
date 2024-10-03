@@ -19,38 +19,56 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
+    <!-- Firebase SDK einbinden -->
+    <script type="module">
+        // Importiere benötigte Funktionen von Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+        // Firebase-Konfiguration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC755F3iMmyWt3y8BQaEaf6XCDxJD1oIM0",
+            authDomain: "drita-156ac.firebaseapp.com",
+            databaseURL: "https://drita-156ac-default-rtdb.firebaseio.com",
+            projectId: "drita-156ac",
+            storageBucket: "drita-156ac.appspot.com",
+            messagingSenderId: "1087047503092",
+            appId: "1:1087047503092:web:e5ca7e121f4614747162a1"
+        };
+
+        // Firebase initialisieren
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Funktion, um die Galerie anzuzeigen
+        function displayGallery() {
+            const galleryElement = document.getElementById('gallery');
+            galleryElement.innerHTML = '';  // Galerie leeren
+
+            // Lade die Bild-URLs aus der Firebase-Datenbank
+            const imagesRef = ref(database, 'galleryImages');
+            onValue(imagesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.values(data).forEach((imageUrl) => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = imageUrl;  // Verwende die gespeicherte Bild-URL
+                        imgElement.alt = 'Bild';
+                        galleryElement.appendChild(imgElement);
+                    });
+                }
+            });
+        }
+
+        // Galerie beim Laden der Seite anzeigen
+        window.onload = displayGallery;
+    </script>
 </head>
 <body>
 
     <h1>Galerie anzeigen</h1>
 
     <div class="gallery" id="gallery"></div>
-
-    <script>
-        // Funktion, um die Galerie anzuzeigen
-        function displayGallery() {
-            const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-            const galleryElement = document.getElementById('gallery');
-            galleryElement.innerHTML = '';  // Galerie leeren
-
-            storedImages.forEach((imageUrl) => {
-                const imgElement = document.createElement('img');
-                imgElement.src = imageUrl;  // Verwende die gespeicherte Dropbox-URL
-                imgElement.alt = 'Bild';
-                galleryElement.appendChild(imgElement);
-            });
-        }
-
-        // Event-Listener für den 'storage'-Event, um die Galerie in Echtzeit zu aktualisieren
-        window.addEventListener('storage', function(event) {
-            if (event.key === 'galleryImages') {
-                displayGallery();
-            }
-        });
-
-        // Galerie beim Laden der Seite anzeigen
-        window.onload = displayGallery;
-    </script>
 
 </body>
 </html>
