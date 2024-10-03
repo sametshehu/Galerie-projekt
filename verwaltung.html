@@ -3,50 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galerie verwalten</title>
-    <style>
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .gallery img {
-            width: 100%;
-            height: auto;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .gallery-item {
-            position: relative;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: red;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 50%;
-            padding: 5px;
-        }
-    </style>
-    <!-- Firebase SDK einbinden -->
+    <title>Firebase Storage Upload Test</title>
     <script type="module">
-        // Importiere benötigte Funktionen von Firebase
+        // Firebase SDK importieren
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
             apiKey: "AIzaSyBHzpeP7Ng4qwzpLmB8ny2cWij-S2Bvah4",
             authDomain: "drita2-bd8f2.firebaseapp.com",
-            databaseURL: "https://drita2-bd8f2-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "drita2-bd8f2",
             storageBucket: "drita2-bd8f2.appspot.com",
             messagingSenderId: "1089581498100",
@@ -55,70 +21,27 @@
 
         // Firebase initialisieren
         const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
         const storage = getStorage(app);
 
-        // Variable, um die ausgewählte Datei zu speichern
         let selectedFile = null;
 
-        // Funktion, um die Galerie anzuzeigen
-        function displayGallery() {
-            const galleryElement = document.getElementById('gallery');
-            galleryElement.innerHTML = '';  // Galerie leeren
-
-            // Lade die Bild-URLs aus der Firebase-Datenbank
-            const imagesRef = ref(database, 'galleryImages');
-            onValue(imagesRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.entries(data).forEach(([key, imageUrl]) => {
-                        const galleryItem = document.createElement('div');
-                        galleryItem.className = 'gallery-item';
-
-                        const imgElement = document.createElement('img');
-                        imgElement.src = imageUrl;  // Verwende die gespeicherte Bild-URL
-                        imgElement.alt = 'Bild';
-
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'delete-btn';
-                        deleteBtn.innerHTML = 'X';
-                        deleteBtn.onclick = function () {
-                            deleteImage(key);
-                        };
-
-                        galleryItem.appendChild(imgElement);
-                        galleryItem.appendChild(deleteBtn);
-                        galleryElement.appendChild(galleryItem);
-                    });
-                }
-            });
-        }
-
-        // Funktion, um die ausgewählte Datei zu speichern
+        // Funktion, um die Datei auszuwählen
         function selectImage(event) {
             selectedFile = event.target.files[0];
             console.log("Bild ausgewählt:", selectedFile.name);
         }
 
-        // Funktion, um die Datei in Firebase hochzuladen
+        // Funktion, um die Datei hochzuladen
         function uploadImage() {
             if (selectedFile) {
                 const storageReference = storageRef(storage, 'images/' + selectedFile.name);
                 uploadBytes(storageReference, selectedFile).then((snapshot) => {
                     console.log("Bild hochgeladen:", snapshot.metadata.fullPath);
 
-                    // Hole die URL des hochgeladenen Bildes
+                    // URL des hochgeladenen Bildes abrufen
                     getDownloadURL(snapshot.ref).then((url) => {
                         console.log("Download-URL:", url);
-
-                        // Speichere die Bild-URL in der Firebase-Datenbank
-                        const newImageRef = push(ref(database, 'galleryImages'));
-                        set(newImageRef, url).then(() => {
-                            displayGallery();  // Galerie neu anzeigen
-                            alert("Bild erfolgreich hochgeladen!");
-                        }).catch((error) => {
-                            console.error("Fehler beim Speichern der Bild-URL in der Datenbank:", error);
-                        });
+                        alert("Bild erfolgreich hochgeladen! URL: " + url);
                     }).catch((error) => {
                         console.error("Fehler beim Abrufen der Download-URL:", error);
                     });
@@ -129,30 +52,13 @@
                 alert("Bitte wähle ein Bild aus, bevor du es hochlädst.");
             }
         }
-
-        // Funktion, um ein Bild zu löschen
-        function deleteImage(key) {
-            set(ref(database, `galleryImages/${key}`), null).then(() => {
-                displayGallery();  // Galerie neu anzeigen
-            });
-        }
-
-        // Galerie beim Laden der Seite anzeigen
-        window.onload = displayGallery;
     </script>
 </head>
 <body>
 
-    <h1>Galerie verwalten</h1>
+    <h1>Firebase Storage Upload Test</h1>
 
-    <div class="gallery" id="gallery"></div>
-
-    <br>
-
-    <!-- Bild von Gerät auswählen -->
     <input type="file" id="imageUpload" accept="image/*" onchange="selectImage(event)">
-    
-    <!-- Button zum Hochladen -->
     <button onclick="uploadImage()">Bild hochladen</button>
 
 </body>
