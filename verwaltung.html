@@ -45,7 +45,7 @@
     <br>
 
     <!-- Bild hinzufügen -->
-    <input type="text" id="imageUrl" placeholder="URL des neuen Bildes">
+    <input type="text" id="imageUrl" placeholder="Dropbox-Bild-URL">
     <button onclick="addImage()">Bild hinzufügen</button>
 
     <script>
@@ -82,7 +82,7 @@
             const imageUrl = document.getElementById('imageUrl').value;
             if (imageUrl) {
                 const storedImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-                storedImages.push(imageUrl);
+                storedImages.push(imageUrl);  // Speichern des externen Dropbox-Links
                 localStorage.setItem('galleryImages', JSON.stringify(storedImages));
                 displayGallery(); // Galerie neu anzeigen
                 document.getElementById('imageUrl').value = ''; // Eingabefeld leeren
