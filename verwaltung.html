@@ -13,6 +13,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyBHzpeP7Ng4qwzpLmB8ny2cWij-S2Bvah4",
             authDomain: "drita2-bd8f2.firebaseapp.com",
+            databaseURL: "https://drita2-bd8f2-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "drita2-bd8f2",
             storageBucket: "drita2-bd8f2.appspot.com",
             messagingSenderId: "1089581498100",
@@ -67,7 +68,10 @@
 
     <h1>Firebase Storage Upload Test</h1>
 
+    <!-- Eingabefeld zur Dateiauswahl -->
     <input type="file" id="imageUpload" accept="image/*" onchange="selectImage(event)">
+    
+    <!-- Button zum Hochladen des Bildes -->
     <button onclick="uploadImage()">Bild hochladen</button>
 
 </body>
