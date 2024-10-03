@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Storage Upload Test</title>
+    <title>Firebase Upload Minimal Test</title>
     <script type="module">
-        // Firebase SDK importieren
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+        import { getStorage, ref as storageRef, uploadBytes } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
             apiKey: "AIzaSyBHzpeP7Ng4qwzpLmB8ny2cWij-S2Bvah4",
             authDomain: "drita2-bd8f2.firebaseapp.com",
-            databaseURL: "https://drita2-bd8f2-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "drita2-bd8f2",
             storageBucket: "drita2-bd8f2.appspot.com",
             messagingSenderId: "1089581498100",
@@ -26,7 +24,7 @@
 
         let selectedFile = null;
 
-        // Funktion, um die Datei auszuwählen
+        // Datei auswählen
         function selectImage(event) {
             selectedFile = event.target.files[0];
             if (selectedFile) {
@@ -36,24 +34,15 @@
             }
         }
 
-        // Funktion, um die Datei hochzuladen
+        // Datei hochladen
         function uploadImage() {
             if (selectedFile) {
                 console.log("Upload wird gestartet...");
                 const storageReference = storageRef(storage, 'images/' + selectedFile.name);
                 uploadBytes(storageReference, selectedFile)
-                    .then((snapshot) => {
-                        console.log("Bild hochgeladen:", snapshot.metadata.fullPath);
-
-                        // URL des hochgeladenen Bildes abrufen
-                        getDownloadURL(snapshot.ref)
-                            .then((url) => {
-                                console.log("Download-URL:", url);
-                                alert("Bild erfolgreich hochgeladen! URL: " + url);
-                            })
-                            .catch((error) => {
-                                console.error("Fehler beim Abrufen der Download-URL:", error);
-                            });
+                    .then(() => {
+                        console.log("Bild hochgeladen.");
+                        alert("Bild erfolgreich hochgeladen!");
                     })
                     .catch((error) => {
                         console.error("Fehler beim Hochladen des Bildes:", error);
@@ -66,12 +55,12 @@
 </head>
 <body>
 
-    <h1>Firebase Storage Upload Test</h1>
+    <h1>Firebase Upload Minimal Test</h1>
 
-    <!-- Eingabefeld zur Dateiauswahl -->
+    <!-- Bild auswählen -->
     <input type="file" id="imageUpload" accept="image/*" onchange="selectImage(event)">
     
-    <!-- Button zum Hochladen des Bildes -->
+    <!-- Button zum Hochladen -->
     <button onclick="uploadImage()">Bild hochladen</button>
 
 </body>
