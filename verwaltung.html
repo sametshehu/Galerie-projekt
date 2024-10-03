@@ -97,6 +97,7 @@
         // Funktion, um die ausgewählte Datei zu speichern
         function selectImage(event) {
             selectedFile = event.target.files[0];
+            console.log("Bild ausgewählt:", selectedFile.name);
         }
 
         // Funktion, um die Datei in Firebase hochzuladen
@@ -104,13 +105,25 @@
             if (selectedFile) {
                 const storageReference = storageRef(storage, 'images/' + selectedFile.name);
                 uploadBytes(storageReference, selectedFile).then((snapshot) => {
+                    console.log("Bild hochgeladen:", snapshot.metadata.fullPath);
+
+                    // Hole die URL des hochgeladenen Bildes
                     getDownloadURL(snapshot.ref).then((url) => {
+                        console.log("Download-URL:", url);
+
+                        // Speichere die Bild-URL in der Firebase-Datenbank
                         const newImageRef = push(ref(database, 'galleryImages'));
                         set(newImageRef, url).then(() => {
                             displayGallery();  // Galerie neu anzeigen
                             alert("Bild erfolgreich hochgeladen!");
+                        }).catch((error) => {
+                            console.error("Fehler beim Speichern der Bild-URL in der Datenbank:", error);
                         });
+                    }).catch((error) => {
+                        console.error("Fehler beim Abrufen der Download-URL:", error);
                     });
+                }).catch((error) => {
+                    console.error("Fehler beim Hochladen des Bildes:", error);
                 });
             } else {
                 alert("Bitte wähle ein Bild aus, bevor du es hochlädst.");
