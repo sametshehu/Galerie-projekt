@@ -28,26 +28,35 @@
         // Funktion, um die Datei auszuwählen
         function selectImage(event) {
             selectedFile = event.target.files[0];
-            console.log("Bild ausgewählt:", selectedFile.name);
+            if (selectedFile) {
+                console.log("Bild ausgewählt:", selectedFile.name);
+            } else {
+                console.error("Keine Datei ausgewählt.");
+            }
         }
 
         // Funktion, um die Datei hochzuladen
         function uploadImage() {
             if (selectedFile) {
+                console.log("Upload wird gestartet...");
                 const storageReference = storageRef(storage, 'images/' + selectedFile.name);
-                uploadBytes(storageReference, selectedFile).then((snapshot) => {
-                    console.log("Bild hochgeladen:", snapshot.metadata.fullPath);
+                uploadBytes(storageReference, selectedFile)
+                    .then((snapshot) => {
+                        console.log("Bild hochgeladen:", snapshot.metadata.fullPath);
 
-                    // URL des hochgeladenen Bildes abrufen
-                    getDownloadURL(snapshot.ref).then((url) => {
-                        console.log("Download-URL:", url);
-                        alert("Bild erfolgreich hochgeladen! URL: " + url);
-                    }).catch((error) => {
-                        console.error("Fehler beim Abrufen der Download-URL:", error);
+                        // URL des hochgeladenen Bildes abrufen
+                        getDownloadURL(snapshot.ref)
+                            .then((url) => {
+                                console.log("Download-URL:", url);
+                                alert("Bild erfolgreich hochgeladen! URL: " + url);
+                            })
+                            .catch((error) => {
+                                console.error("Fehler beim Abrufen der Download-URL:", error);
+                            });
+                    })
+                    .catch((error) => {
+                        console.error("Fehler beim Hochladen des Bildes:", error);
                     });
-                }).catch((error) => {
-                    console.error("Fehler beim Hochladen des Bildes:", error);
-                });
             } else {
                 alert("Bitte wähle ein Bild aus, bevor du es hochlädst.");
             }
