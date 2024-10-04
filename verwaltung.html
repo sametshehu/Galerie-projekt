@@ -23,16 +23,51 @@
             position: relative;
         }
 
+        /* Größere Löschen-Buttons */
         .delete-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 10px;
+            right: 10px;
             background-color: red;
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 50%;
-            padding: 5px;
+            padding: 10px;
+            font-size: 18px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Datei auswählen Button stilisieren */
+        input[type="file"] {
+            display: none; /* Verstecke das echte Datei-Auswahlfeld */
+        }
+
+        label[for="imageUpload"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50; /* Grün für den Datei-Button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        /* Größerer Hochladen-Button */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 0;
+            background-color: #008CBA; /* Blau für den Hochladen-Button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
     <script type="module">
@@ -171,7 +206,12 @@
 
     <h1>Galerie verwalten</h1>
 
+    <!-- Verstecktes Datei-Auswahlfeld -->
     <input type="file" id="imageUpload" accept="image/*" onchange="selectImage(event)">
+    
+    <!-- Label als stilisierter Button -->
+    <label for="imageUpload">Datei auswählen</label>
+    
     <button onclick="uploadImage()">Bild hochladen</button>
 
     <div class="gallery" id="gallery"></div>
