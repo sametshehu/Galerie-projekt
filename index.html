@@ -18,10 +18,14 @@
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        .gallery-item {
+            position: relative;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getDatabase, ref, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
@@ -38,21 +42,49 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Funktion, um die Galerie zu aktualisieren
-        function addImageToGallery(imageUrl) {
+        // Funktion, um die Galerie zu aktualisieren und Bilder hinzuzufügen
+        function addImageToGallery(key, imageUrl) {
             const galleryElement = document.getElementById('gallery');
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.setAttribute('data-key', key);  // Speichere den Key für das spätere Löschen
+
             const imgElement = document.createElement('img');
             imgElement.src = imageUrl;
             imgElement.alt = 'Bild';
-            galleryElement.appendChild(imgElement);
+
+            galleryItem.appendChild(imgElement);
+            galleryElement.appendChild(galleryItem);
+        }
+
+        // Funktion, um das Bild aus der Galerie zu entfernen
+        function removeImageFromGallery(key) {
+            const galleryElement = document.getElementById('gallery');
+            const galleryItems = galleryElement.getElementsByClassName('gallery-item');
+
+            for (let i = 0; i < galleryItems.length; i++) {
+                if (galleryItems[i].getAttribute('data-key') === key) {
+                    galleryElement.removeChild(galleryItems[i]);
+                    break;
+                }
+            }
         }
 
         // Firebase-Datenbank überwachen und neue Bilder hinzufügen
         function displayGallery() {
             const imagesRef = ref(database, 'galleryImages');
+
+            // Hinzugefügte Bilder anzeigen
             onChildAdded(imagesRef, (snapshot) => {
+                const key = snapshot.key;
                 const imageUrl = snapshot.val();
-                addImageToGallery(imageUrl);
+                addImageToGallery(key, imageUrl);
+            });
+
+            // Gelöschte Bilder aus der Galerie entfernen
+            onChildRemoved(imagesRef, (snapshot) => {
+                const key = snapshot.key;
+                removeImageFromGallery(key);
             });
         }
 
