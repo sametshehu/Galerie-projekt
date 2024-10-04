@@ -31,7 +31,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getDatabase, ref, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
@@ -50,6 +50,7 @@
 
         let imageUrls = [];
         let currentIndex = 0;
+        let intervalId;
 
         // Funktion, um die Slideshow anzuzeigen
         function startSlideshow() {
@@ -61,7 +62,7 @@
             showImage(currentIndex);
 
             // Funktion, um die Bilder in der Slideshow zu wechseln
-            setInterval(() => {
+            intervalId = setInterval(() => {
                 currentIndex = (currentIndex + 1) % imageUrls.length;
                 showImage(currentIndex);
             }, 10000); // 10 Sekunden pro Bild
@@ -76,7 +77,9 @@
                 images[i].classList.remove('active');
             }
 
-            images[index].classList.add('active');
+            if (images.length > 0) {
+                images[index].classList.add('active');
+            }
         }
 
         // Funktion, um die Bilder aus Firebase zu laden und in die Slideshow hinzuzufügen
@@ -84,17 +87,43 @@
             const imagesRef = ref(database, 'galleryImages');
             const slideshowElement = document.getElementById('slideshow');
 
+            // Bild hinzufügen, wenn es in der Datenbank hinzugefügt wird
             onChildAdded(imagesRef, (snapshot) => {
+                const key = snapshot.key;
                 const imageUrl = snapshot.val();
-                imageUrls.push(imageUrl); // Speichere die Bild-URL in einem Array
+                imageUrls.push({ key, url: imageUrl });
 
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
+                imgElement.setAttribute('data-key', key);
                 slideshowElement.appendChild(imgElement);
 
-                // Starte die Slideshow, wenn Bilder geladen sind
+                // Starte die Slideshow, wenn das erste Bild geladen ist
                 if (imageUrls.length === 1) {
                     startSlideshow();
+                }
+            });
+
+            // Bild entfernen, wenn es aus der Datenbank gelöscht wird
+            onChildRemoved(imagesRef, (snapshot) => {
+                const key = snapshot.key;
+
+                // Entferne das Bild aus dem imageUrls-Array
+                imageUrls = imageUrls.filter(image => image.key !== key);
+
+                // Entferne das Bild aus dem DOM
+                const imgElement = document.querySelector(`img[data-key='${key}']`);
+                if (imgElement) {
+                    imgElement.remove();
+                }
+
+                // Wenn keine Bilder mehr da sind, beende die Slideshow
+                if (imageUrls.length === 0) {
+                    clearInterval(intervalId);
+                } else {
+                    // Wenn das aktuell angezeigte Bild gelöscht wurde, zeige das nächste Bild an
+                    currentIndex = currentIndex % imageUrls.length;
+                    showImage(currentIndex);
                 }
             });
         }
