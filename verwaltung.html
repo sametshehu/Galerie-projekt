@@ -37,8 +37,8 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
-        import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getStorage, ref as storageRef, deleteObject, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+        import { getDatabase, ref, set, push, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
@@ -100,9 +100,71 @@
             }
         }
 
+        // Funktion, um die Galerie zu aktualisieren und Löschen-Buttons hinzuzufügen
+        function addImageToManagement(key, imageUrl) {
+            const galleryElement = document.getElementById('gallery');
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.alt = 'Bild';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = 'X';
+            deleteBtn.onclick = function () {
+                deleteImage(key, imageUrl);
+            };
+
+            galleryItem.appendChild(imgElement);
+            galleryItem.appendChild(deleteBtn);
+            galleryElement.appendChild(galleryItem);
+        }
+
+        // Firebase-Datenbank überwachen und neue Bilder hinzufügen
+        function displayGallery() {
+            const imagesRef = ref(database, 'galleryImages');
+            onChildAdded(imagesRef, (snapshot) => {
+                const key = snapshot.key;
+                const imageUrl = snapshot.val();
+                addImageToManagement(key, imageUrl);
+            });
+        }
+
+        // Funktion, um ein Bild zu löschen
+        function deleteImage(key, imageUrl) {
+            // 1. Bild aus Firebase Storage löschen
+            const imageRef = storageRef(storage, imageUrl);
+            deleteObject(imageRef)
+                .then(() => {
+                    console.log("Bild aus Storage gelöscht:", imageUrl);
+                })
+                .catch((error) => {
+                    console.error("Fehler beim Löschen des Bildes aus Storage:", error);
+                });
+
+            // 2. Bild-URL aus Firebase Realtime Database löschen
+            const imageDbRef = ref(database, 'galleryImages/' + key);
+            remove(imageDbRef)
+                .then(() => {
+                    console.log("Bild aus Datenbank gelöscht:", key);
+                    // Nach dem Löschen, das Bild aus der Verwaltung entfernen
+                    const galleryElement = document.getElementById('gallery');
+                    galleryElement.innerHTML = '';  // Galerie leeren
+                    displayGallery();  // Galerie neu laden
+                })
+                .catch((error) => {
+                    console.error("Fehler beim Löschen der Bild-URL aus der Datenbank:", error);
+                });
+        }
+
         // Funktionen global verfügbar machen
         window.selectImage = selectImage;
         window.uploadImage = uploadImage;
+
+        // Zeige die Galerie in der Verwaltung an
+        window.onload = displayGallery;
     </script>
 </head>
 <body>
@@ -111,6 +173,8 @@
 
     <input type="file" id="imageUpload" accept="image/*" onchange="selectImage(event)">
     <button onclick="uploadImage()">Bild hochladen</button>
+
+    <div class="gallery" id="gallery"></div>
 
 </body>
 </html>
