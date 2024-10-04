@@ -3,30 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galerie Slideshow</title>
+    <title>Xhamia Drita Slideshow</title>
     <style>
+        /* Gesamter Hintergrund (inklusive Titel) auf #436C90 ändern */
+        body {
+            background-color: #436C90;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Slideshow-Bereich mit eigener Hintergrundfarbe und zusätzlichem Padding */
         .slideshow {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 80vh;
+            width: calc(100% - 40px); /* Breite reduziert für einen 20px Abstand auf jeder Seite */
+            height: calc(80vh - 40px); /* Höhe angepasst, um Platz für das Padding zu schaffen */
             overflow: hidden;
             position: relative;
-            background-color: #f0f0f0;
+            background-color: #273D52; /* Hintergrundfarbe der Slideshow */
+            color: white;
+            padding: 20px; /* Abstand von 20px rundherum */
+            box-sizing: border-box; /* Damit Padding in die Gesamtgröße einfließt */
         }
 
+        /* Bilderstil anpassen mit zusätzlichem Abstand */
         .slideshow img {
             max-width: 100%;
             max-height: 100%;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stärkerer Schatten */
             display: none;
             position: absolute;
+            margin: 10px; /* Abstand um die Bilder */
         }
 
+        /* Das aktive Bild anzeigen */
         .slideshow img.active {
             display: block;
+        }
+
+        /* Stil für den Titel anpassen (Farbe weiß) */
+        h1 {
+            color: #ffffff; /* Weiße Schriftfarbe */
+            text-align: center;
+            padding: 20px 0;
+            margin: 0;
         }
     </style>
     <script type="module">
@@ -87,7 +109,6 @@
             const imagesRef = ref(database, 'galleryImages');
             const slideshowElement = document.getElementById('slideshow');
 
-            // Bild hinzufügen, wenn es in der Datenbank hinzugefügt wird
             onChildAdded(imagesRef, (snapshot) => {
                 const key = snapshot.key;
                 const imageUrl = snapshot.val();
@@ -98,43 +119,36 @@
                 imgElement.setAttribute('data-key', key);
                 slideshowElement.appendChild(imgElement);
 
-                // Starte die Slideshow, wenn das erste Bild geladen ist
                 if (imageUrls.length === 1) {
                     startSlideshow();
                 }
             });
 
-            // Bild entfernen, wenn es aus der Datenbank gelöscht wird
             onChildRemoved(imagesRef, (snapshot) => {
                 const key = snapshot.key;
 
-                // Entferne das Bild aus dem imageUrls-Array
                 imageUrls = imageUrls.filter(image => image.key !== key);
 
-                // Entferne das Bild aus dem DOM
                 const imgElement = document.querySelector(`img[data-key='${key}']`);
                 if (imgElement) {
                     imgElement.remove();
                 }
 
-                // Wenn keine Bilder mehr da sind, beende die Slideshow
                 if (imageUrls.length === 0) {
                     clearInterval(intervalId);
                 } else {
-                    // Wenn das aktuell angezeigte Bild gelöscht wurde, zeige das nächste Bild an
                     currentIndex = currentIndex % imageUrls.length;
                     showImage(currentIndex);
                 }
             });
         }
 
-        // Lade die Bilder, wenn die Seite geladen wird
         window.onload = loadImages;
     </script>
 </head>
 <body>
 
-    <h1>Slideshow</h1>
+    <h1>Xhamia Drita</h1>
 
     <div class="slideshow" id="slideshow"></div>
 
