@@ -21,7 +21,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
@@ -38,23 +38,21 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Funktion, um die Galerie anzuzeigen
-        function displayGallery() {
+        // Funktion, um die Galerie zu aktualisieren
+        function addImageToGallery(imageUrl) {
             const galleryElement = document.getElementById('gallery');
-            galleryElement.innerHTML = '';  // Galerie leeren
+            const imgElement = document.createElement('img');
+            imgElement.src = imageUrl;
+            imgElement.alt = 'Bild';
+            galleryElement.appendChild(imgElement);
+        }
 
-            // Lade die Bild-URLs aus der Firebase-Datenbank
+        // Firebase-Datenbank überwachen und neue Bilder hinzufügen
+        function displayGallery() {
             const imagesRef = ref(database, 'galleryImages');
-            onValue(imagesRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.values(data).forEach((imageUrl) => {
-                        const imgElement = document.createElement('img');
-                        imgElement.src = imageUrl;  // Verwende die gespeicherte Bild-URL
-                        imgElement.alt = 'Bild';
-                        galleryElement.appendChild(imgElement);
-                    });
-                }
+            onChildAdded(imagesRef, (snapshot) => {
+                const imageUrl = snapshot.val();
+                addImageToGallery(imageUrl);
             });
         }
 
