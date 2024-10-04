@@ -12,7 +12,7 @@
             font-family: 'Arial', sans-serif;
         }
 
-        /* Slideshow-Bereich mit gleichem Abstand auf allen Seiten */
+        /* Slideshow-Bereich mit reduziertem Abstand unten */
         .slideshow {
             display: flex;
             justify-content: center;
@@ -23,19 +23,19 @@
             position: relative;
             background-color: transparent; /* Hintergrundfarbe entfernt */
             color: white;
-            padding: 20px; /* Gleicher Abstand auf allen Seiten (oben, rechts, unten, links) */
+            padding: 10px 20px; /* Reduzierter Abstand oben und unten (10px), rechts und links (20px) */
             box-sizing: border-box; /* Padding in die Gesamtgröße einbeziehen */
         }
 
         /* Bilderstil anpassen mit reduziertem Abstand oben und unten und größerem Radius */
         .slideshow img {
             max-width: calc(100% - 40px); /* Breite des Bildes reduziert, um den Abstand rechts und links zu gewährleisten */
-            max-height: calc(100% - 20px); /* Höhe des Bildes angepasst, um den Abstand oben und unten zu verkleinern */
+            max-height: calc(100% - 10px); /* Höhe des Bildes angepasst, um den Abstand oben und unten zu verkleinern */
             border-radius: 20px; /* Vergrößerter Radius für abgerundete Ecken */
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stärkerer Schatten */
             display: none;
             position: absolute;
-            margin: 10px 20px; /* Reduzierter Abstand oben und unten (10px) und Abstand rechts und links (20px) */
+            margin: 5px 20px; /* Reduzierter Abstand unten und oben (5px) und Abstand rechts und links (20px) */
         }
 
         /* Das aktive Bild anzeigen */
