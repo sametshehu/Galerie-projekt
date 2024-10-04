@@ -3,10 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Storage Upload Test</title>
+    <title>Galerie verwalten</title>
+    <style>
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-item {
+            position: relative;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 5px;
+        }
+    </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+        import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
         // Firebase-Konfiguration
         const firebaseConfig = {
@@ -22,6 +54,7 @@
         // Firebase initialisieren
         const app = initializeApp(firebaseConfig);
         const storage = getStorage(app);
+        const database = getDatabase(app);
 
         let selectedFile = null;
 
@@ -48,7 +81,12 @@
                         getDownloadURL(snapshot.ref)
                             .then((url) => {
                                 console.log("Download-URL:", url);
-                                alert("Bild erfolgreich hochgeladen! URL: " + url);
+                                
+                                // Bild-URL in Firebase Realtime Database speichern
+                                const newImageRef = push(ref(database, 'galleryImages'));
+                                set(newImageRef, url).then(() => {
+                                    alert("Bild erfolgreich hochgeladen und gespeichert!");
+                                });
                             })
                             .catch((error) => {
                                 console.error("Fehler beim Abrufen der Download-URL:", error);
@@ -69,12 +107,9 @@
 </head>
 <body>
 
-    <h1>Firebase Storage Upload Test</h1>
+    <h1>Galerie verwalten</h1>
 
-    <!-- Bild auswählen -->
     <input type="file" id="imageUpload" accept="image/*" onchange="selectImage(event)">
-    
-    <!-- Button zum Hochladen -->
     <button onclick="uploadImage()">Bild hochladen</button>
 
 </body>
